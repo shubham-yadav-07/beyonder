@@ -1,11 +1,11 @@
 <<<<<<< HEAD
-# 🛡️ Beyonder v1.2 — AI-Powered Cybersecurity Platform
-**Smart India Hackathon 2025 | Team Techvision**
+# 🛡️ Beyonder — AI-Powered Cybersecurity Platform
 
-> v1.2 adds real file-system monitoring (watchdog), incremental backups with checksum
-> validation, Mother AI pattern learning/similarity/prediction, full analytics, dark/light
-> theme, mobile-responsive layout, and automatic demo data seeding.
-> See `docs/AUDIT_REPORT_V2.md` for the complete Phase 1–16 changelog.
+Overview
+
+Beyonder is an advanced cybersecurity and digital resilience platform designed to provide real-time threat monitoring, intelligent security analytics, blockchain-based audit logging, automated backup management, and AI-powered security assistance.
+
+The platform combines modern web technologies with cybersecurity concepts to create a centralized dashboard for monitoring, detecting, and responding to security events.
 
 ## Quick Start
 
