@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beyonder v1.1 — AI Cybersecurity Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Figtree:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ── */
+:root,[data-theme=dark]{
+  --bg:#07080f;--surf:#0c0d16;--elev:#11121e;--over:#161728;
+  --bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.13);
+  --t1:#f0f2f8;--t2:#8b90a8;--t3:#555a72;--t4:#363a50;
+  --acc:#6366f1;--acc2:#5254cc;--accs:rgba(99,102,241,.1);--acct:#a5a8ff;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.05);
+  --sh2:0 4px 24px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.08);
+  --grid:rgba(99,102,241,.028);
+}
+[data-theme=light]{
+  --bg:#f4f5fa;--surf:#fff;--elev:#f8f9fd;--over:#eef0f8;
+  --bdr:rgba(0,0,0,.08);--bdr2:rgba(0,0,0,.14);
+  --t1:#0f1120;--t2:#525775;--t3:#8b90a8;--t4:#c0c4d6;
+  --acc:#4f52d8;--acc2:#3f42c0;--accs:rgba(79,82,216,.08);--acct:#4f52d8;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.06);
+  --sh2:0 4px 20px rgba(0,0,0,.1),0 0 0 1px rgba(0,0,0,.08);
+  --grid:rgba(79,82,216,.025);
+}
+*{margin:0;padding:0;box-sizing:border-box;transition:background-color .2s,color .2s,border-color .2s}
+body{font-family:'Figtree',sans-serif;background:var(--bg);color:var(--t1);height:100vh;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+
+/* ── LAYOUT ── */
+.sidebar{width:220px;background:var(--surf);border-right:1px solid var(--bdr);display:flex;flex-direction:column;flex-shrink:0}
+.logo-area{padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:12px}
+.logo-icon{width:32px;height:32px;background:var(--acc);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 16px rgba(99,102,241,.4);flex-shrink:0}
+.logo-text{line-height:1.2}
+.logo-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--t1)}
+.logo-sub{font-size:9px;font-family:'Fira Code',monospace;color:var(--t3);letter-spacing:2px;text-transform:uppercase}
+.status-pill{margin:10px 12px;padding:7px 12px;background:rgba(34,201,130,.1);border:1px solid rgba(34,201,130,.2);border-radius:8px;display:flex;align-items:center;gap:7px;font-family:'Fira Code',monospace;font-size:10px;font-weight:600;color:#22c982;letter-spacing:.5px}
+.pulse{width:6px;height:6px;border-radius:50%;background:#22c982;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+nav{flex:1;padding:8px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.nav-sec{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:1px;text-transform:uppercase;padding:8px 12px 4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--t3);transition:all .15s;border:1px solid transparent;user-select:none}
+.nav-item:hover{background:var(--elev);color:var(--t1)}
+.nav-item.active{background:var(--accs);color:var(--acct);border-color:rgba(99,102,241,.18)}
+.nav-item .ni{font-size:15px;width:18px;text-align:center}
+.nav-item .chev{margin-left:auto;font-size:10px;opacity:.5}
+.user-bar{padding:12px;border-top:1px solid var(--bdr)}
+.user-row{display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--elev);border-radius:10px;border:1px solid var(--bdr)}
+.uavatar{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--acc),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;flex-shrink:0}
+.uname{font-size:12px;font-weight:600;color:var(--t1)}
+.urole{font-size:10px;color:var(--t3);font-family:'Fira Code',monospace}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:52px;background:var(--surf);border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);font-family:'Fira Code',monospace}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.content{flex:1;overflow-y:auto;padding:24px;background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:32px 32px}
+
+/* ── PAGE ── */
+.page{display:none;animation:fadeUp .3s ease}
+.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.ph-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-.3px}
+.ph-sub{font-size:13px;color:var(--t3);margin-top:3px}
+.ph-actions{display:flex;align-items:center;gap:8px}
+
+/* ── CARDS ── */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;box-shadow:var(--sh);transition:box-shadow .2s,border-color .2s}
+.card:hover{box-shadow:var(--sh2)}
+.card-p{padding:20px}
+.card-p-sm{padding:14px 16px}
+
+/* ── STAT CARDS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:18px;box-shadow:var(--sh);transition:all .2s;cursor:default;position:relative;overflow:hidden}
+.stat:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.stat:hover::after{opacity:.4}
+.stat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:0;transition:opacity .2s}
+.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px}
+.stat-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1;margin-bottom:5px}
+.stat-lbl{font-size:10px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.8px;font-family:'Fira Code',monospace}
+.stat-trend{font-size:11px;font-weight:600;margin-top:6px}
+
+/* ── GRID LAYOUTS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
+.g31{display:grid;grid-template-columns:3fr 1fr;gap:16px;margin-bottom:20px}
+.g32{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:20px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+
+/* ── BTNS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .18s;font-family:'Figtree',sans-serif;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-p{background:var(--acc);color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3),0 0 0 1px rgba(99,102,241,.4)}
+.btn-p:hover:not(:disabled){background:var(--acc2);box-shadow:0 2px 12px rgba(99,102,241,.4);transform:translateY(-1px)}
+.btn-s{background:var(--elev);color:var(--t2);border:1px solid var(--bdr)}
+.btn-s:hover{border-color:var(--bdr2);color:var(--t1);background:var(--over)}
+.btn-sm{padding:6px 13px;font-size:12px;border-radius:7px;gap:5px}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.8}
+.bc{background:rgba(232,64,90,.12);color:#e8405a;border-color:rgba(232,64,90,.25)}
+.bh{background:rgba(242,124,53,.12);color:#f27c35;border-color:rgba(242,124,53,.25)}
+.bm{background:rgba(212,160,23,.12);color:#d4a017;border-color:rgba(212,160,23,.25)}
+.bl{background:rgba(34,201,130,.12);color:#22c982;border-color:rgba(34,201,130,.25)}
+.bi{background:rgba(99,102,241,.1);color:var(--acct);border-color:rgba(99,102,241,.25)}
+.bq{background:rgba(242,124,53,.1);color:#f27c35;border-color:rgba(242,124,53,.2)}
+.br{background:rgba(34,201,130,.1);color:#22c982;border-color:rgba(34,201,130,.2)}
+.ba{background:rgba(232,64,90,.1);color:#e8405a;border-color:rgba(232,64,90,.2);animation:pulse 1.5s infinite}
+
+/* ── THREAT ROWS ── */
+.trow{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--elev);border-radius:10px;margin-bottom:8px;transition:all .15s;cursor:pointer;border:1px solid transparent}
+.trow:hover{border-color:var(--bdr2);background:var(--over)}
+.tlbar{width:3px;height:36px;border-radius:2px;flex-shrink:0}
+.tname{font-family:'Fira Code',monospace;font-size:12px;font-weight:500;color:var(--t1)}
+.tpath{font-size:11px;color:var(--t3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.tscore{width:34px;height:28px;background:var(--over);border:1px solid var(--bdr);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'Fira Code',monospace;color:var(--t1);flex-shrink:0}
+
+/* ── CHART ── */
+.chart-wrap{height:160px;display:flex;align-items:flex-end;gap:5px;padding:0 4px}
+.chart-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:2px}
+.cbar{border-radius:3px 3px 0 0;min-height:3px;opacity:.85;transition:opacity .15s}
+.cbar:hover{opacity:1}
+.chart-xl{display:flex;gap:5px;margin-top:6px;padding:0 4px}
+.chart-xl>div{flex:1;text-align:center;font-size:10px;color:var(--t3);font-family:'Fira Code',monospace}
+
+/* ── RADIAL ── */
+.radial-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0 4px}
+.radial-pos{position:relative;width:140px;height:140px}
+.radial-svg{transform:rotate(-90deg)}
+.radial-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.radial-v{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
+.radial-m{font-size:11px;color:var(--t3)}
+
+/* ── SEV CARDS ── */
+.sev-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.sev{padding:14px;border-radius:11px;border:1.5px solid;text-align:center;cursor:pointer;transition:all .15s}
+.sev:hover{transform:scale(1.03)}
+.sev.active{ring:2px solid currentColor}
+.sv{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1}
+.sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;font-family:'Fira Code',monospace;margin-top:4px}
+.sc{border-color:rgba(232,64,90,.25);background:rgba(232,64,90,.08);color:#e8405a}
+.sh2{border-color:rgba(242,124,53,.25);background:rgba(242,124,53,.08);color:#f27c35}
+.sm{border-color:rgba(212,160,23,.25);background:rgba(212,160,23,.08);color:#d4a017}
+.ss{border-color:rgba(34,201,130,.25);background:rgba(34,201,130,.08);color:#22c982}
+
+/* ── FILTER BAR ── */
+.fbar{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.fb{padding:6px 14px;border-radius:20px;border:1px solid var(--bdr);background:var(--surf);color:var(--t3);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Figtree',sans-serif}
+.fb:hover,.fb.on{background:var(--accs);border-color:rgba(99,102,241,.25);color:var(--acct)}
+
+/* ── INPUT ── */
+.inp{background:var(--elev);border:1px solid var(--bdr);border-radius:8px;padding:9px 13px;font-size:13px;font-family:'Fira Code',monospace;color:var(--t1);outline:none;width:100%;transition:border-color .15s,box-shadow .15s}
+.inp::placeholder{color:var(--t3)}
+.inp:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.12)}
+select.inp{cursor:pointer}
+
+/* ── TOGGLE ── */
+.tog{width:40px;height:20px;border-radius:10px;cursor:pointer;position:relative;transition:background .2s;border:none;outline:none;flex-shrink:0}
+.tog.on{background:var(--acc)}.tog.off{background:var(--over);border:1px solid var(--bdr2)}
+.tog::after{content:'';position:absolute;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .18s ease;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tog.on::after{left:23px}.tog.off::after{left:3px}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--bdr)}
+.set-row:last-child{border-bottom:none}
+.set-lbl{font-size:13px;font-weight:500;color:var(--t1)}
+.set-desc{font-size:11.5px;color:var(--t3);margin-top:2px}
+
+/* ── BLOCKCHAIN ── */
+.chain-vis{display:flex;align-items:center;gap:8px;overflow-x:auto;padding:14px;background:var(--elev);border-radius:10px;border:1px solid var(--bdr);margin-bottom:18px}
+.bnode{width:56px;height:56px;border-radius:11px;background:var(--surf);border:2px solid rgba(99,102,241,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:border-color .15s}
+.bnode:hover{border-color:var(--acc)}
+.bnum{font-size:8px;font-family:'Fira Code',monospace;color:var(--t3);margin-top:2px}
+.blink{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.bl2{width:14px;height:1px;background:rgba(99,102,241,.4)}
+.bd{width:5px;height:5px;border-radius:50%;background:rgba(99,102,241,.5)}
+.log-row{display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--bdr);transition:background .12s;cursor:pointer}
+.log-row:last-child{border-bottom:none}
+.log-row:hover{background:var(--elev)}
+.log-ev{font-family:'Fira Code',monospace;font-size:12.5px;font-weight:600;color:var(--t1)}
+.log-h{font-family:'Fira Code',monospace;font-size:10.5px;color:var(--t3);margin-top:2px}
+.sev-chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;font-family:'Fira Code',monospace;letter-spacing:.5px;border:1px solid}
+
+/* ── FOLDER ── */
+.frow{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--surf);border:1px solid var(--bdr);border-radius:11px;margin-bottom:8px;transition:all .15s}
+.frow:hover{border-color:var(--bdr2);box-shadow:var(--sh2)}
+.ficon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.fpath{font-family:'Fira Code',monospace;font-size:12px;font-weight:500;color:var(--t1)}
+.fmeta{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ── BACKUP ── */
+.brow{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--bdr)}
+.brow:last-child{border-bottom:none}
+.brow:hover{background:var(--elev)}
+.bicon{width:38px;height:38px;border-radius:9px;background:var(--elev);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.bname{font-size:13px;font-weight:600;color:var(--t1)}
+.bmeta{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* ── CHAT ── */
+.chat-area{height:340px;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.cg{display:flex;gap:10px}
+.cg.user{flex-direction:row-reverse}
+.cav{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.cav-ai{background:var(--accs);border:1px solid rgba(99,102,241,.2)}
+.cav-u{background:var(--elev);border:1px solid var(--bdr);font-size:10px;font-weight:700;color:var(--t3)}
+.cbub{max-width:76%;padding:11px 14px;border-radius:12px;font-size:12.5px;line-height:1.6}
+.cbub-ai{background:var(--elev);border:1px solid var(--bdr);color:var(--t1);border-radius:4px 12px 12px 12px;white-space:pre-line}
+.cbub-u{background:var(--acc);color:#fff;border-radius:12px 4px 12px 12px}
+.typing-wrap{display:flex;gap:10px}
+.typing-dots{background:var(--elev);border:1px solid var(--bdr);border-radius:4px 12px 12px 12px;padding:11px 16px;display:flex;gap:4px;align-items:center}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:bounce .6s ease-in-out infinite}
+.chip{padding:5px 11px;background:var(--elev);border:1px solid var(--bdr);border-radius:20px;font-size:11px;font-weight:500;color:var(--t3);cursor:pointer;transition:all .12s}
+.chip:hover{color:var(--acct);border-color:rgba(99,102,241,.3)}
+.chat-inp-wrap{display:flex;gap:10px;align-items:center;background:var(--elev);border:1px solid var(--bdr);border-radius:11px;padding:10px 14px;transition:border-color .15s}
+.chat-inp-wrap:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.chat-inp{flex:1;background:transparent;border:none;outline:none;font-size:13px;color:var(--t1);font-family:'Figtree',sans-serif}
+.chat-inp::placeholder{color:var(--t3)}
+.ai-bars{display:flex;gap:3px;align-items:flex-end;height:22px}
+.abar{width:3px;background:var(--acc);border-radius:2px;animation:barwave 1s ease-in-out infinite}
+
+/* ── PROGRESS ── */
+.prog-wrap{background:var(--elev);border:1.5px solid rgba(99,102,241,.25);border-radius:12px;padding:14px 18px;margin-bottom:18px;display:none}
+.prog-wrap.show{display:block}
+.prog-bar{width:100%;height:6px;background:var(--over);border-radius:3px;overflow:hidden;margin:8px 0}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--acc),#a78bfa);border-radius:3px;transition:width .1s ease}
+
+/* ── SYS STATUS ── */
+.sys-row{display:flex;align-items:center;gap:10px;padding:10px;background:var(--elev);border-radius:9px;margin-bottom:8px;border:1px solid var(--bdr)}
+.sys-row:last-child{margin-bottom:0}
+.sicon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+
+/* ── THEME TOGGLE BTN ── */
+.theme-btn{width:34px;height:34px;border-radius:8px;background:var(--elev);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .15s}
+.theme-btn:hover{border-color:var(--acc);background:var(--accs)}
+.notif-btn{position:relative;width:34px;height:34px;border-radius:8px;background:var(--elev);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .15s}
+.notif-btn:hover{border-color:var(--bdr2)}
+.nbadge{position:absolute;top:4px;right:4px;width:7px;height:7px;background:#e8405a;border-radius:50%;border:2px solid var(--surf)}
+
+/* ── SECTION HEADER ── */
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sh-t{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--t1)}
+.sh-s{font-size:11.5px;color:var(--t3);margin-top:2px}
+.sec-label{font-size:10px;font-weight:700;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;font-family:'Fira Code',monospace;margin-bottom:10px}
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center}
+.empty-icon{width:52px;height:52px;border-radius:14px;background:var(--elev);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px}
+.empty-t{font-size:13px;font-weight:600;color:var(--t2)}
+.empty-s{font-size:12px;color:var(--t3);margin-top:4px}
+.divider{height:1px;background:var(--bdr);margin:0}
+
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes barwave{0%,100%{height:6px}50%{height:18px}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <div class="logo-icon">🛡</div>
+    <div class="logo-text">
+      <div class="logo-name">Beyonder</div>
+      <div class="logo-sub">Cyber Guard</div>
+    </div>
+  </div>
+  <div class="status-pill"><span class="pulse"></span>SYSTEM PROTECTED</div>
+  <nav>
+    <div class="nav-sec">Main</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)"><span class="ni">⊞</span>Overview<span class="chev">›</span></div>
+    <div class="nav-item" onclick="nav('threats',this)"><span class="ni">🛡</span>Threat Center</div>
+    <div class="nav-item" onclick="nav('monitor',this)"><span class="ni">📁</span>Folder Monitor</div>
+    <div class="nav-sec">Protection</div>
+    <div class="nav-item" onclick="nav('backup',this)"><span class="ni">💾</span>Backup & Recovery</div>
+    <div class="nav-item" onclick="nav('blockchain',this)"><span class="ni">⛓</span>Blockchain Logs</div>
+    <div class="nav-item" onclick="nav('motherai',this)"><span class="ni">🧠</span>Mother AI</div>
+    <div class="nav-sec">Account</div>
+    <div class="nav-item" onclick="nav('settings',this)"><span class="ni">⚙</span>Settings</div>
+  </nav>
+  <div class="user-bar">
+    <div class="user-row">
+      <div class="uavatar">T</div>
+      <div><div class="uname">Techvision Admin</div><div class="urole">admin</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span style="width:6px;height:6px;border-radius:50%;background:#22c982;display:inline-block"></span>
+      Live · <span id="live-time">--:--:--</span>
+    </div>
+    <div class="topbar-right">
+      <div class="theme-btn" onclick="toggleTheme()" title="Toggle theme" id="theme-btn">🌙</div>
+      <div style="width:1px;height:18px;background:var(--bdr)"></div>
+      <div class="notif-btn"><span>🔔</span><div class="nbadge"></div></div>
+      <div style="width:1px;height:18px;background:var(--bdr)"></div>
+      <span style="font-family:'Fira Code',monospace;font-size:11px;color:var(--t3)">v1.1.0</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="p-dashboard" class="page active">
+  <div class="ph">
+    <div><div class="ph-title">Security Overview</div><div class="ph-sub">Real-time threat intelligence · Smart India Hackathon 2025</div></div>
+    <div class="ph-actions">
+      <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(34,201,130,.1);border:1px solid rgba(34,201,130,.2);border-radius:20px">
+        <span class="pulse"></span>
+        <span style="font-size:10px;font-family:'Fira Code',monospace;font-weight:700;color:#22c982;letter-spacing:.5px">LIVE</span>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="nav('threats',document.querySelectorAll('.nav-item')[1])">⚡ Run Scan</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-icon" style="background:rgba(34,201,130,.1)">🛡</div>
+      <div class="stat-val" style="color:#22c982">23/100</div>
+      <div class="stat-lbl">Threat Score</div>
+      <div class="stat-trend" style="color:#22c982">↓ Low Risk</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon" style="background:rgba(232,64,90,.1)">⚠️</div>
+      <div class="stat-val" style="color:#e8405a">2</div>
+      <div class="stat-lbl">Active Threats</div>
+      <div class="stat-trend" style="color:#e8405a">2 critical quarantined</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon" style="background:var(--accs)">🌐</div>
+      <div class="stat-val" style="color:var(--acct)">13,809</div>
+      <div class="stat-lbl">Files Monitored</div>
+      <div class="stat-trend" style="color:var(--t3)">Continuous scan active</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon" style="background:rgba(167,139,250,.1)">🧠</div>
+      <div class="stat-val" style="color:#a78bfa">99.2%</div>
+      <div class="stat-lbl">AI Accuracy</div>
+      <div class="stat-trend" style="color:var(--t3)">Mother AI v3.1.7</div>
+    </div>
+  </div>
+
+  <div class="g32">
+    <div class="card card-p">
+      <div class="sh">
+        <div><div class="sh-t">Threat Activity</div><div class="sh-s">7-day detection trend</div></div>
+        <div style="display:flex;gap:12px">
+          <span style="font-size:10.5px;color:var(--t3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:#e8405a;border-radius:2px;display:inline-block"></span>Critical</span>
+          <span style="font-size:10.5px;color:var(--t3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:#f27c35;border-radius:2px;display:inline-block"></span>High</span>
+          <span style="font-size:10.5px;color:var(--t3);display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:#d4a017;border-radius:2px;display:inline-block"></span>Medium</span>
+        </div>
+      </div>
+      <div class="chart-wrap" id="dash-chart"></div>
+      <div class="chart-xl"><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div></div>
+    </div>
+    <div class="card card-p" style="display:flex;flex-direction:column">
+      <div class="sh"><div><div class="sh-t">Risk Score</div><div class="sh-s">System rating</div></div></div>
+      <div class="radial-wrap" style="flex:1">
+        <div class="radial-pos">
+          <svg class="radial-svg" viewBox="0 0 140 140" width="140" height="140">
+            <circle cx="70" cy="70" r="54" fill="none" stroke="var(--elev)" stroke-width="12"/>
+            <circle cx="70" cy="70" r="54" fill="none" stroke="#22c982" stroke-width="12" stroke-dasharray="339.3" stroke-dashoffset="78" stroke-linecap="round"/>
+          </svg>
+          <div class="radial-center">
+            <div class="radial-v" style="color:#22c982">23</div>
+            <div class="radial-m">/ 100</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:8px">
+          <div style="font-size:14px;font-weight:600;color:#22c982">Low Risk</div>
+          <div style="font-size:11px;color:var(--t3)">5 detections this week</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g32">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--bdr)">
+        <div class="sh" style="margin-bottom:0">
+          <div><div class="sh-t">Recent Detections</div><div class="sh-s">Latest threat events</div></div>
+          <a onclick="nav('threats',document.querySelectorAll('.nav-item')[1])" style="font-size:12px;color:var(--acct);cursor:pointer">View all →</a>
+        </div>
+      </div>
+      <div style="padding:12px">
+        <div class="trow"><div class="tlbar" style="background:#e8405a"></div><div style="font-size:17px;flex-shrink:0">🦠</div><div style="flex:1;min-width:0"><div class="tname">WannaCry.v3.ransomware</div><div class="tpath">C:/Users/Admin/Downloads/crack.exe</div></div><div style="display:flex;align-items:center;gap:6px"><span class="badge bc">Critical</span><span class="badge bq">quarantined</span><div class="tscore" style="color:#e8405a">97</div></div></div>
+        <div class="trow"><div class="tlbar" style="background:#e8405a"></div><div style="font-size:17px;flex-shrink:0">🎭</div><div style="flex:1;min-width:0"><div class="tname">Keylogger.Agent.XZ</div><div class="tpath">C:/Windows/System32/svchost32.exe</div></div><div style="display:flex;align-items:center;gap:6px"><span class="badge bc">Critical</span><span class="badge bq">quarantined</span><div class="tscore" style="color:#e8405a">94</div></div></div>
+        <div class="trow"><div class="tlbar" style="background:#f27c35"></div><div style="font-size:17px;flex-shrink:0">🐴</div><div style="flex:1;min-width:0"><div class="tname">Trojan.GenericKD.47</div><div class="tpath">C:/Temp/update_patch.dll</div></div><div style="display:flex;align-items:center;gap:6px"><span class="badge bh">High</span><span class="badge ba">active</span><div class="tscore" style="color:#f27c35">81</div></div></div>
+        <div class="trow"><div class="tlbar" style="background:#d4a017"></div><div style="font-size:17px;flex-shrink:0">📢</div><div style="flex:1;min-width:0"><div class="tname">Adware.Bundlore</div><div class="tpath">C:/Users/Admin/AppData/free_tool.exe</div></div><div style="display:flex;align-items:center;gap:6px"><span class="badge bm">Medium</span><span class="badge br">resolved</span><div class="tscore" style="color:#d4a017">54</div></div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="card card-p-sm">
+        <div class="sec-label">Backup Status</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12px;color:var(--t2)">Last backup 12 min ago</span>
+          <span style="font-size:12px;font-weight:700;color:#22c982">100%</span>
+        </div>
+        <div class="prog-bar" style="display:block;margin:0"><div class="prog-fill" style="width:100%"></div></div>
+      </div>
+      <div class="card card-p-sm">
+        <div class="sec-label">Threat Distribution</div>
+        <div style="display:flex;gap:4px;align-items:flex-end;height:60px;padding:0 4px">
+          <div style="flex:1;background:#e8405a;opacity:.8;border-radius:3px 3px 0 0;height:60%"></div>
+          <div style="flex:1;background:#f27c35;opacity:.8;border-radius:3px 3px 0 0;height:40%"></div>
+          <div style="flex:1;background:#d4a017;opacity:.8;border-radius:3px 3px 0 0;height:30%"></div>
+          <div style="flex:1;background:#22c982;opacity:.8;border-radius:3px 3px 0 0;height:20%"></div>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:4px">
+          <div style="flex:1;text-align:center;font-size:9px;color:#e8405a;font-family:'Fira Code',monospace">CRIT</div>
+          <div style="flex:1;text-align:center;font-size:9px;color:#f27c35;font-family:'Fira Code',monospace">HIGH</div>
+          <div style="flex:1;text-align:center;font-size:9px;color:#d4a017;font-family:'Fira Code',monospace">MED</div>
+          <div style="flex:1;text-align:center;font-size:9px;color:#22c982;font-family:'Fira Code',monospace">LOW</div>
+        </div>
+      </div>
+      <div class="card card-p-sm">
+        <div class="sys-row"><div class="sicon" style="background:var(--accs)">⛓</div><div style="flex:1"><div style="font-size:11px;color:var(--t3)">Blockchain Logs</div><div style="font-size:13px;font-weight:700;font-family:'Fira Code',monospace;color:var(--acct)">2,441</div></div></div>
+        <div class="sys-row" style="margin-bottom:0"><div class="sicon" style="background:rgba(167,139,250,.1)">⏱</div><div style="flex:1"><div style="font-size:11px;color:var(--t3)">Avg Detect Time</div><div style="font-size:13px;font-weight:700;font-family:'Fira Code',monospace;color:#a78bfa">0.3s</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ THREATS ═══ -->
+<div id="p-threats" class="page">
+  <div class="ph">
+    <div><div class="ph-title">Threat Center</div><div class="ph-sub">AI-powered malware detection and incident response</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-s btn-sm">⬇ Export</button>
+      <button class="btn btn-p btn-sm" onclick="runScan()">⚡ Run AI Scan</button>
+    </div>
+  </div>
+  <div id="scan-prog" class="prog-wrap">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:12.5px;font-weight:600;color:var(--acct);font-family:'Fira Code',monospace">🔍 Deep AI Scan Running</span>
+      <span id="sp" style="font-size:12.5px;font-weight:600;color:var(--acct);font-family:'Fira Code',monospace">0%</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="sf" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--t3);margin-top:4px">Analyzing behavioral patterns, entropy signatures, and heuristic indicators…</div>
+  </div>
+  <div class="sev-g">
+    <div class="sev sc" onclick="flt(this,'critical')"><div class="sv">2</div><div class="sl">Critical</div></div>
+    <div class="sev sh2" onclick="flt(this,'high')"><div class="sv">1</div><div class="sl">High</div></div>
+    <div class="sev sm" onclick="flt(this,'medium')"><div class="sv">1</div><div class="sl">Medium</div></div>
+    <div class="sev ss" onclick="flt(this,'low')"><div class="sv">1</div><div class="sl">Low</div></div>
+  </div>
+  <div class="fbar">
+    <button class="fb on" onclick="setF(this,'all')">All Threats</button>
+    <button class="fb" onclick="setF(this,'critical')">Critical</button>
+    <button class="fb" onclick="setF(this,'high')">High</button>
+    <button class="fb" onclick="setF(this,'medium')">Medium</button>
+    <button class="fb" onclick="setF(this,'low')">Low</button>
+    <input class="inp" id="tsearch" placeholder="Search name or path…" oninput="searchT(this.value)" style="width:220px;padding:6px 12px;font-family:'Figtree',sans-serif">
+    <span id="tcount" style="margin-left:auto;font-size:12px;color:var(--t3)">5 threats</span>
+  </div>
+  <div id="tlist">
+    <div class="trow" data-lvl="critical" style="border-left:3px solid #e8405a;border-radius:10px"><div style="font-size:17px;flex-shrink:0">🦠</div><div style="flex:1;min-width:0"><div class="tname">WannaCry.v3.ransomware</div><div class="tpath">C:/Users/Admin/Downloads/crack.exe · 2 min ago</div></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span class="badge bc">Critical</span><span class="badge bq">quarantined</span><div class="tscore" style="color:#e8405a">97</div></div></div>
+    <div class="trow" data-lvl="critical" style="border-left:3px solid #e8405a;border-radius:10px"><div style="font-size:17px;flex-shrink:0">🎭</div><div style="flex:1;min-width:0"><div class="tname">Keylogger.Agent.XZ</div><div class="tpath">C:/Windows/System32/svchost32.exe · 2h ago</div></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span class="badge bc">Critical</span><span class="badge bq">quarantined</span><div class="tscore" style="color:#e8405a">94</div></div></div>
+    <div class="trow" data-lvl="high" style="border-left:3px solid #f27c35;border-radius:10px"><div style="font-size:17px;flex-shrink:0">🐴</div><div style="flex:1;min-width:0"><div class="tname">Trojan.GenericKD.47</div><div class="tpath">C:/Temp/update_patch.dll · 15 min ago</div></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span class="badge bh">High</span><span class="badge ba">active</span><div class="tscore" style="color:#f27c35">81</div><button class="btn btn-s btn-sm" style="color:#f27c35;border-color:rgba(242,124,53,.3)" onclick="doQ(this)">Quarantine</button></div></div>
+    <div class="trow" data-lvl="medium" style="border-left:3px solid #d4a017;border-radius:10px"><div style="font-size:17px;flex-shrink:0">📢</div><div style="flex:1;min-width:0"><div class="tname">Adware.Bundlore</div><div class="tpath">C:/Users/Admin/AppData/free_tool.exe · 1h ago</div></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span class="badge bm">Medium</span><span class="badge br">resolved</span><div class="tscore" style="color:#d4a017">54</div></div></div>
+    <div class="trow" data-lvl="low" style="border-left:3px solid #22c982;border-radius:10px"><div style="font-size:17px;flex-shrink:0">🔧</div><div style="flex:1;min-width:0"><div class="tname">PUP.Optional.Toolbar</div><div class="tpath">C:/Program Files/browser_ext.dll · 24h ago</div></div><div style="display:flex;align-items:center;gap:6px;flex-shrink:0"><span class="badge bl">Low</span><span class="badge br">resolved</span><div class="tscore" style="color:#22c982">22</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ FOLDER MONITOR ═══ -->
+<div id="p-monitor" class="page">
+  <div class="ph"><div><div class="ph-title">Folder Monitor</div><div class="ph-sub">Real-time file system surveillance and threat detection</div></div></div>
+  <div class="card card-p" style="margin-bottom:18px">
+    <div class="sh"><div><div class="sh-t">Add Folder to Watch</div><div class="sh-s">All changes are blockchain-logged</div></div></div>
+    <div style="display:flex;gap:10px">
+      <input class="inp" id="fi" placeholder="C:/Users/Admin/Documents  or  /home/user/projects" style="flex:1">
+      <button class="btn btn-p" onclick="addF()">+ Add</button>
+    </div>
+  </div>
+  <div class="g4" style="margin-bottom:18px">
+    <div class="card card-p-sm" style="text-align:center"><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:var(--acct)">5</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Monitored</div></div>
+    <div class="card card-p-sm" style="text-align:center"><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:var(--t1)">13,809</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Total Files</div></div>
+    <div class="card card-p-sm" style="text-align:center"><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:#e8405a">2</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Threats Found</div></div>
+    <div class="card card-p-sm" style="text-align:center"><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:#d4a017">1</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Warnings</div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:14px 20px;border-bottom:1px solid var(--bdr)"><div class="sh-t">Monitored Locations</div></div>
+    <div style="padding:12px" id="flist">
+      <div class="frow"><div class="ficon" style="background:rgba(34,201,130,.1);border:1px solid rgba(34,201,130,.2)">📂</div><div style="flex:1;min-width:0"><div class="fpath">C:/Users/Admin/Documents</div><div class="fmeta">1,247 files · Scanned 2 min ago</div></div><span class="badge br">protected</span></div>
+      <div class="frow"><div class="ficon" style="background:rgba(212,160,23,.1);border:1px solid rgba(212,160,23,.2)">📂</div><div style="flex:1;min-width:0"><div class="fpath">C:/Users/Admin/Downloads</div><div class="fmeta">89 files · Scanned 5 min ago · <span style="color:#e8405a;font-weight:500">2 threats</span></div></div><span class="badge bm">warning</span></div>
+      <div class="frow"><div class="ficon" style="background:rgba(34,201,130,.1);border:1px solid rgba(34,201,130,.2)">📂</div><div style="flex:1;min-width:0"><div class="fpath">C:/Program Files</div><div class="fmeta">8,341 files · Scanned 12 min ago</div></div><span class="badge br">protected</span></div>
+      <div class="frow"><div class="ficon" style="background:rgba(34,201,130,.1);border:1px solid rgba(34,201,130,.2)">📂</div><div style="flex:1;min-width:0"><div class="fpath">C:/Windows/System32</div><div class="fmeta">4,129 files · Scanned 1 hour ago</div></div><span class="badge br">protected</span></div>
+      <div class="frow"><div class="ficon" style="background:var(--accs);border:1px solid rgba(99,102,241,.2)">📂</div><div style="flex:1;min-width:0"><div class="fpath">C:/Users/Admin/Desktop</div><div class="fmeta">43 files · Scanning now…</div></div><span class="badge bi">scanning</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BACKUP ═══ -->
+<div id="p-backup" class="page">
+  <div class="ph">
+    <div><div class="ph-title">Backup & Recovery</div><div class="ph-sub">AES-256 encrypted backups with blockchain verification</div></div>
+    <button class="btn btn-p btn-sm" onclick="runBackup()">☁ New Backup</button>
+  </div>
+  <div id="bp-prog" class="prog-wrap">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+      <span style="font-size:12.5px;font-weight:600;color:var(--acct);font-family:'Fira Code',monospace">☁ Encrypting & Uploading</span>
+      <span id="bpp" style="font-size:12.5px;font-weight:600;color:var(--acct);font-family:'Fira Code',monospace">0%</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="bpf" style="width:0%"></div></div>
+    <div style="font-size:11px;color:var(--t3);margin-top:4px">AES-256 encrypted · Blockchain hash-verified · Incremental delta sync</div>
+  </div>
+  <div class="g4" style="margin-bottom:20px">
+    <div class="card card-p"><div style="font-size:18px;margin-bottom:8px">🗄</div><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:var(--acct)">5</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Total Backups</div></div>
+    <div class="card card-p"><div style="font-size:18px;margin-bottom:8px">💾</div><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:#a78bfa">12.3 GB</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Storage Used</div></div>
+    <div class="card card-p"><div style="font-size:18px;margin-bottom:8px">🕐</div><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:#22c982">12m</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Last Backup</div></div>
+    <div class="card card-p"><div style="font-size:18px;margin-bottom:8px">✅</div><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:#22c982">100%</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Success Rate</div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center">
+      <div><div class="sh-t">Backup History</div><div class="sh-s">5 snapshots available</div></div>
+    </div>
+    <div class="brow group"><div class="bicon">💿</div><div style="flex:1"><div class="bname">Full System Backup</div><div class="bmeta">Jan 15, 2025 · 02:00 AM · 4.2 GB · <span style="color:var(--acct)">⛓ verified</span></div></div><span class="badge bi" style="margin-right:12px">Full</span><button class="btn btn-s btn-sm" onclick="doRestore(this)">↺ Restore</button></div>
+    <div class="brow"><div class="bicon">💿</div><div style="flex:1"><div class="bname">Incremental Backup</div><div class="bmeta">Jan 15, 2025 · 02:00 PM · 340 MB · <span style="color:var(--acct)">⛓ verified</span></div></div><span class="badge" style="background:rgba(167,139,250,.1);color:#a78bfa;border-color:rgba(167,139,250,.2);margin-right:12px">Incremental</span><button class="btn btn-s btn-sm" onclick="doRestore(this)">↺ Restore</button></div>
+    <div class="brow"><div class="bicon">💿</div><div style="flex:1"><div class="bname">Critical Files Backup</div><div class="bmeta">Jan 15, 2025 · 08:00 AM · 892 MB</div></div><span class="badge" style="background:rgba(34,211,238,.1);color:#22d3ee;border-color:rgba(34,211,238,.2);margin-right:12px">Selective</span><button class="btn btn-s btn-sm" onclick="doRestore(this)">↺ Restore</button></div>
+    <div class="brow"><div class="bicon">💿</div><div style="flex:1"><div class="bname">Pre-Threat Snapshot</div><div class="bmeta">Jan 14, 2025 · 11:47 PM · 1.1 GB · <span style="color:var(--acct)">⛓ verified</span></div></div><span class="badge bm" style="margin-right:12px">Snapshot</span><button class="btn btn-s btn-sm" onclick="doRestore(this)">↺ Restore</button></div>
+  </div>
+</div>
+
+<!-- ═══ BLOCKCHAIN ═══ -->
+<div id="p-blockchain" class="page">
+  <div class="ph">
+    <div><div class="ph-title">Blockchain Logs</div><div class="ph-sub">Immutable SHA-256 chained audit trail — tamper-evident</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-s btn-sm" onclick="toast('Demo logs seeded!')">🌱 Seed Demo</button>
+      <button class="btn btn-p btn-sm" onclick="verifyChain()">🔒 Verify Chain</button>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card card-p" style="display:flex;align-items:center;gap:14px"><div style="width:42px;height:42px;background:var(--accs);border:1px solid rgba(99,102,241,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0">🗄</div><div><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:var(--acct)">2,441</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Total Records</div></div></div>
+    <div class="card card-p" style="display:flex;align-items:center;gap:14px"><div style="width:42px;height:42px;background:rgba(34,201,130,.1);border:1px solid rgba(34,201,130,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0">✅</div><div><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:#22c982">2,441</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Verified Blocks</div></div></div>
+    <div class="card card-p" style="display:flex;align-items:center;gap:14px"><div style="width:42px;height:42px;background:rgba(34,201,130,.1);border:1px solid rgba(34,201,130,.2);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0">🛡</div><div><div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;color:#22c982">100%</div><div style="font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;text-transform:uppercase;font-weight:700;margin-top:4px">Chain Integrity</div></div></div>
+  </div>
+  <div class="card card-p" style="margin-bottom:18px">
+    <div class="sh"><div class="sh-t">Chain Visualization</div></div>
+    <div class="chain-vis">
+      <div class="bnode">⚡<div class="bnum">#18847291</div></div>
+      <div class="blink"><div class="bl2"></div><div class="bd"></div><div class="bl2"></div></div>
+      <div class="bnode">⚡<div class="bnum">#18847289</div></div>
+      <div class="blink"><div class="bl2"></div><div class="bd"></div><div class="bl2"></div></div>
+      <div class="bnode">⚡<div class="bnum">#18847101</div></div>
+      <div class="blink"><div class="bl2"></div><div class="bd"></div><div class="bl2"></div></div>
+      <div class="bnode">⚡<div class="bnum">#18846933</div></div>
+      <div class="blink"><div class="bl2"></div><div class="bd"></div><div class="bl2"></div></div>
+      <div class="bnode" style="border-style:dashed;border-color:var(--bdr2);opacity:.4">⬜<div class="bnum">next</div></div>
+    </div>
+  </div>
+  <div class="fbar">
+    <button class="fb on" onclick="setFb(this)">All Events</button>
+    <button class="fb" onclick="setFb(this)">CRITICAL</button>
+    <button class="fb" onclick="setFb(this)">HIGH</button>
+    <button class="fb" onclick="setFb(this)">INFO</button>
+    <button class="fb" onclick="setFb(this)">LOW</button>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center">
+      <div class="sh-t">Audit Entries</div><span style="font-size:11px;color:var(--t3)">5 records</span>
+    </div>
+    <div class="log-row"><div style="color:#22c982;font-size:14px;flex-shrink:0">✓</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="log-ev">THREAT_DETECTED</div><span class="sev-chip" style="background:rgba(232,64,90,.1);color:#e8405a;border-color:rgba(232,64,90,.25)">CRITICAL</span></div><div class="log-h">0x4f8a…c3e1 · Block #18847291 · prev: 0x2b1d…</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-family:'Fira Code',monospace;color:var(--t2)">14:23:01</div><div style="font-size:10px;color:var(--t3)">Jan 15</div></div></div>
+    <div class="log-row"><div style="color:#22c982;font-size:14px;flex-shrink:0">✓</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="log-ev">FILE_QUARANTINED</div><span class="sev-chip" style="background:rgba(242,124,53,.1);color:#f27c35;border-color:rgba(242,124,53,.25)">HIGH</span></div><div class="log-h">0x2b1d…9f7a · Block #18847289 · prev: 0x4f8a…</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-family:'Fira Code',monospace;color:var(--t2)">14:20:47</div><div style="font-size:10px;color:var(--t3)">Jan 15</div></div></div>
+    <div class="log-row"><div style="color:#22c982;font-size:14px;flex-shrink:0">✓</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="log-ev">BACKUP_COMPLETED</div><span class="sev-chip" style="background:var(--accs);color:var(--acct);border-color:rgba(99,102,241,.25)">INFO</span></div><div class="log-h">0x7c9e…a2b4 · Block #18847101 · prev: 0x2b1d…</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-family:'Fira Code',monospace;color:var(--t2)">13:00:00</div><div style="font-size:10px;color:var(--t3)">Jan 15</div></div></div>
+    <div class="log-row"><div style="color:#22c982;font-size:14px;flex-shrink:0">✓</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="log-ev">AI_MODEL_UPDATED</div><span class="sev-chip" style="background:var(--accs);color:var(--acct);border-color:rgba(99,102,241,.25)">INFO</span></div><div class="log-h">0x1a3f…d8c2 · Block #18846933 · prev: 0x7c9e…</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-family:'Fira Code',monospace;color:var(--t2)">11:00:00</div><div style="font-size:10px;color:var(--t3)">Jan 15</div></div></div>
+    <div class="log-row"><div style="color:#22c982;font-size:14px;flex-shrink:0">✓</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><div class="log-ev">SCAN_INITIATED</div><span class="sev-chip" style="background:var(--over);color:var(--t3);border-color:var(--bdr2)">LOW</span></div><div class="log-h">0x8e2c…f5a9 · Block #18846721 · prev: 0x1a3f…</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:12px;font-family:'Fira Code',monospace;color:var(--t2)">09:00:00</div><div style="font-size:10px;color:var(--t3)">Jan 15</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ MOTHER AI ═══ -->
+<div id="p-motherai" class="page">
+  <div class="ph">
+    <div><div class="ph-title">Mother AI</div><div class="ph-sub">Intent-aware cybersecurity intelligence assistant</div></div>
+    <div class="ph-actions">
+      <div style="padding:6px 12px;background:var(--elev);border:1px solid var(--bdr);border-radius:8px;font-size:11.5px;color:var(--t3)">Model: <strong style="color:var(--acct);font-family:'Fira Code',monospace">v3.1.7</strong></div>
+      <div style="padding:6px 12px;background:var(--elev);border:1px solid var(--bdr);border-radius:8px;font-size:11.5px;color:var(--t3)">Accuracy: <strong style="color:#22c982;font-family:'Fira Code',monospace">99.2%</strong></div>
+      <button class="btn btn-s btn-sm" onclick="clearChat()">↺ Clear</button>
+    </div>
+  </div>
+  <div class="card card-p-sm" style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+    <div id="ai-orb" style="width:44px;height:44px;border-radius:50%;background:var(--accs);border:2px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:0 0 0 6px rgba(99,102,241,.08)">🧠</div>
+    <div style="flex:1">
+      <div style="font-size:13.5px;font-weight:600;color:var(--t1);display:flex;align-items:center;gap:8px">Mother AI is active <span class="pulse"></span></div>
+      <div style="font-size:11.5px;color:var(--t3);margin-top:2px">2.3M signatures · 99.2% accuracy · Self-learning · Last updated 4 min ago</div>
+    </div>
+    <div class="ai-bars" id="ai-bars">
+      <div class="abar" style="height:6px;animation-delay:0s"></div>
+      <div class="abar" style="height:14px;animation-delay:.1s"></div>
+      <div class="abar" style="height:8px;animation-delay:.2s"></div>
+      <div class="abar" style="height:18px;animation-delay:.3s"></div>
+      <div class="abar" style="height:6px;animation-delay:.4s"></div>
+      <div class="abar" style="height:16px;animation-delay:.5s"></div>
+      <div class="abar" style="height:10px;animation-delay:.6s"></div>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div class="chat-area" id="chat-area">
+      <div class="cg"><div class="cav cav-ai">🧠</div><div class="cbub cbub-ai">Hello! I'm <strong>Mother AI</strong> — Beyonder's central intelligence core running on v3.1.7.
+
+I've analyzed <strong>2.3 million threat signatures</strong> and I'm continuously learning from your system's activity.
+
+I can help you:
+• Analyze any file path for threats
+• Explain your current threat posture
+• Recommend system hardening steps
+• Forecast upcoming threat trends
+
+How can I protect you today?</div></div>
+    </div>
+    <div style="padding:8px 14px;border-top:1px solid var(--bdr);display:flex;flex-wrap:wrap;gap:6px">
+      <div class="chip" onclick="sendPrompt('What is my current system status?')">System Status</div>
+      <div class="chip" onclick="sendPrompt('How can I harden my system?')">Harden System</div>
+      <div class="chip" onclick="sendPrompt('What is ransomware and how does Beyonder stop it?')">Ransomware Defense</div>
+      <div class="chip" onclick="sendPrompt('Show me threat trends this week')">Threat Trends</div>
+      <div class="chip" onclick="sendPrompt('Analyze C:/Users/Admin/Downloads/crack.exe')">Analyze File</div>
+    </div>
+    <div style="padding:12px 14px;border-top:1px solid var(--bdr)">
+      <div class="chat-inp-wrap">
+        <input class="chat-inp" id="chat-inp" placeholder="Ask anything — or type a file path to analyze it…" onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="btn btn-p" style="padding:7px 12px;font-size:13px" onclick="sendChat()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div id="p-settings" class="page">
+  <div class="ph"><div><div class="ph-title">Settings</div><div class="ph-sub">Manage security preferences and account configuration</div></div></div>
+  <div class="card card-p" style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+    <div style="width:48px;height:48px;border-radius:13px;background:linear-gradient(135deg,var(--acc),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:20px;flex-shrink:0">T</div>
+    <div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--t1)">Techvision Admin</div><div style="font-size:12.5px;color:var(--t3)">admin@beyonder.io</div><span style="display:inline-block;margin-top:4px;padding:2px 8px;border-radius:20px;font-size:9.5px;font-family:'Fira Code',monospace;font-weight:700;background:var(--accs);color:var(--acct);border:1px solid rgba(99,102,241,.2);text-transform:uppercase;letter-spacing:.5px">ADMIN</span></div>
+    <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--t3)">Theme</span><div class="theme-btn" onclick="toggleTheme()" id="theme-btn2">🌙</div></div>
+  </div>
+  <!-- Sections -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px"><span>🛡</span><span style="font-family:'Syne',sans-serif;font-weight:600;font-size:13.5px;color:var(--t1)">Scanning & Detection</span></div>
+      <div style="padding:0 18px">
+        <div class="set-row"><div><div class="set-lbl">Real-time Scanning</div><div class="set-desc">Monitor file changes continuously</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+        <div class="set-row"><div><div class="set-lbl">Deep AI Analysis</div><div class="set-desc">Full behavioral + entropy analysis</div></div><button class="tog off" onclick="togSetting(this)"></button></div>
+        <div class="set-row"><div><div class="set-lbl">Auto Quarantine</div><div class="set-desc">Isolate threats with score ≥ 70</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px"><span>🔔</span><span style="font-family:'Syne',sans-serif;font-weight:600;font-size:13.5px;color:var(--t1)">Notifications</span></div>
+      <div style="padding:0 18px">
+        <div class="set-row"><div><div class="set-lbl">Critical Alerts</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+        <div class="set-row"><div><div class="set-lbl">High Severity Alerts</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+        <div class="set-row"><div><div class="set-lbl">Email Digest</div><div class="set-desc">6-hourly security summary</div></div><button class="tog off" onclick="togSetting(this)"></button></div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px"><span>💾</span><span style="font-family:'Syne',sans-serif;font-weight:600;font-size:13.5px;color:var(--t1)">Backup</span></div>
+      <div style="padding:0 18px">
+        <div class="set-row"><div><div class="set-lbl">Auto Backup</div><div class="set-desc">Every 15 min for changed files</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+        <div class="set-row"><div><div class="set-lbl">Encrypt Backups</div><div class="set-desc">AES-256 encryption at rest</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:13px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px"><span>🧠</span><span style="font-family:'Syne',sans-serif;font-weight:600;font-size:13.5px;color:var(--t1)">Mother AI</span></div>
+      <div style="padding:0 18px">
+        <div class="set-row"><div><div class="set-lbl">Blockchain Logging</div><div class="set-desc">Immutable audit ledger</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+        <div class="set-row"><div><div class="set-lbl">Federated Learning</div><div class="set-desc">Improve global AI model</div></div><button class="tog on" onclick="togSetting(this)"></button></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <button class="btn btn-p" onclick="toast('✓ Settings saved successfully!')">💾 Save Changes</button>
+    <button class="btn btn-s" onclick="toast('Reset to defaults')">Reset</button>
+  </div>
+</div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- TOAST -->
+<div id="toast-el" style="position:fixed;bottom:24px;right:24px;background:var(--elev);color:var(--t1);padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999;box-shadow:0 8px 24px rgba(0,0,0,.35);border:1px solid var(--bdr2)">✓ Done</div>
+
+<script>
+// ── Time ──
+setInterval(()=>{document.getElementById('live-time').textContent=new Date().toLocaleTimeString()},1000)
+
+// ── Nav ──
+function nav(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'))
+  document.getElementById('p-'+id).classList.add('active')
+  el.classList.add('active')
+}
+
+// ── Theme ──
+let dark=true
+function toggleTheme(){
+  dark=!dark
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light')
+  const ico=dark?'🌙':'☀️'
+  document.getElementById('theme-btn').textContent=ico
+  const t2=document.getElementById('theme-btn2')
+  if(t2)t2.textContent=ico
+  toast(dark?'Switched to dark mode':'Switched to light mode')
+}
+
+// ── Build area chart ──
+const cd=[{c:40,h:60,m:100},{c:20,h:80,m:60},{c:80,h:40,m:140},{c:0,h:100,m:80},{c:60,h:20,m:120},{c:20,h:60,m:40},{c:40,h:40,m:80}]
+const ch=document.getElementById('dash-chart')
+if(ch)cd.forEach(d=>{
+  const col=document.createElement('div');col.className='chart-col'
+  ;[{v:d.m,c:'#d4a017'},{v:d.h,c:'#f27c35'},{v:d.c,c:'#e8405a'}].forEach(({v,c})=>{
+    const b=document.createElement('div');b.className='cbar'
+    b.style.cssText=`height:${(v/200)*140}px;background:${c}`
+    col.appendChild(b)
+  })
+  ch.appendChild(col)
+})
+
+// ── Scan ──
+function runScan(){
+  const p=document.getElementById('scan-prog')
+  const f=document.getElementById('sf'),pct=document.getElementById('sp')
+  if(!p)return; p.classList.add('show'); let v=0
+  const iv=setInterval(()=>{
+    v+=2;f.style.width=v+'%';pct.textContent=v+'%'
+    if(v>=100){clearInterval(iv);setTimeout(()=>{p.classList.remove('show');f.style.width='0%';pct.textContent='0%';toast('✓ Scan complete — 0 new threats found')},500)}
+  },55)
+}
+
+// ── Backup ──
+function runBackup(){
+  const p=document.getElementById('bp-prog')
+  const f=document.getElementById('bpf'),pct=document.getElementById('bpp')
+  if(!p)return; p.classList.add('show'); let v=0
+  const iv=setInterval(()=>{
+    v+=3;f.style.width=v+'%';pct.textContent=v+'%'
+    if(v>=100){clearInterval(iv);setTimeout(()=>{p.classList.remove('show');f.style.width='0%';pct.textContent='0%';toast('✓ Backup complete — blockchain verified')},500)}
+  },65)
+}
+
+function doRestore(btn){btn.textContent='Restoring…';btn.disabled=true;setTimeout(()=>{btn.textContent='✓ Restored';btn.style.color='#22c982';toast('✓ Files restored successfully')},1800)}
+function doQ(btn){btn.textContent='Quarantined ✓';btn.style.color='#22c982';btn.disabled=true;toast('✓ File quarantined and isolated')}
+
+// ── Filters ──
+function setF(btn,lvl){
+  document.querySelectorAll('.fbar .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on')
+  const rows=document.querySelectorAll('#tlist .trow')
+  let c=0;rows.forEach(r=>{const show=lvl==='all'||r.dataset.lvl===lvl;r.style.display=show?'flex':'none';if(show)c++})
+  document.getElementById('tcount').textContent=c+' threat'+(c!==1?'s':'')
+}
+function flt(card,lvl){setF(document.querySelector('.fbar .fb'),lvl);setF(document.querySelector('.fbar .fb'),lvl)}
+
+function searchT(v){
+  const rows=document.querySelectorAll('#tlist .trow')
+  let c=0;rows.forEach(r=>{const t=r.querySelector('.tname')?.textContent||'';const p=r.querySelector('.tpath')?.textContent||'';const show=!v||t.toLowerCase().includes(v.toLowerCase())||p.toLowerCase().includes(v.toLowerCase());r.style.display=show?'flex':'none';if(show)c++})
+  document.getElementById('tcount').textContent=c+' threat'+(c!==1?'s':'')
+}
+
+function setFb(btn){document.querySelectorAll('#p-blockchain .fbar .fb').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+function verifyChain(){toast('✓ Chain verified — 2,441 blocks · 100% integrity')}
+
+// ── Folder add ──
+function addF(){
+  const inp=document.getElementById('fi');const path=inp.value.trim();if(!path)return
+  const fl=document.getElementById('flist')
+  const row=document.createElement('div');row.className='frow'
+  row.innerHTML=`<div class="ficon" style="background:var(--accs);border:1px solid rgba(99,102,241,.2)">📂</div><div style="flex:1;min-width:0"><div class="fpath">${path}</div><div class="fmeta">Scanning now…</div></div><span class="badge bi">scanning</span>`
+  fl.appendChild(row);inp.value='';toast('✓ Folder added — scan started')
+}
+
+// ── Toggle ──
+function togSetting(btn){btn.classList.toggle('on');btn.classList.toggle('off');toast('Setting updated')}
+
+// ── Chat ──
+const aiR={
+  status:"**Current System Status**\n\n• Active threats: 2 (both quarantined)\n• Monitored folders: 5\n• Risk score: 23/100 — Low Risk ✅\n• Backups: 100% success rate\n\nSystem health is good. All critical threats have been contained.",
+  harden:"**System Hardening Recommendations**\n\n1. Enable MFA on all admin accounts\n2. Block executable files in Downloads folder\n3. Apply 3 pending critical Windows updates\n4. Close externally exposed port 3389 (RDP)\n5. Enable AppLocker policies\n6. Schedule daily full backups\n\nWould you like me to generate an automated hardening script?",
+  ransomware:"**How Beyonder Stops Ransomware**\n\nBeyonder uses a 5-layer defense:\n\n1. **Behavioral AI** — detects encryption patterns in <50ms\n2. **Honeypot files** — decoy files in every monitored folder\n3. **Process termination** — malicious processes killed in <200ms\n4. **Shadow versioning** — every file versioned in real-time\n5. **Blockchain rollback** — restore from last clean snapshot\n\n4 ransomware attempts blocked this month — zero data loss.",
+  trend:"**Threat Intelligence — Last 7 Days**\n\n• Total detections: 5\n• Critical: 2 (↓50% from last week)\n• Resolution rate: 100%\n• Mean detection time: 0.3 seconds\n\n**AI Forecast:** 67% probability of increased phishing activity targeting your sector in the next 72 hours.",
+  analyze:"**File Analysis: C:/Users/Admin/Downloads/crack.exe**\n\n• Threat Level: **CRITICAL** 🔴\n• Risk Score: **97/100**\n• Type: Ransomware (WannaCry v3)\n• Confidence: 99.1%\n\n**Indicators:**\n— Ransomware filename pattern detected\n— High-risk directory (Downloads)\n— High filename entropy: 4.8 bits\n\n**Recommendation:** ⚠️ Quarantine immediately",
+  default:"Based on my analysis of **2.3 million global threat signatures**, your system is at **LOW RISK (score: 23/100)**.\n\n• 2 quarantined threats — both contained\n• No active network connections from threats\n• All files backed up and blockchain-verified\n\nYou can ask me to analyze a file path, explain threats, or give hardening recommendations."
+}
+
+function sendPrompt(t){document.getElementById('chat-inp').value=t;sendChat()}
+function clearChat(){document.getElementById('chat-area').innerHTML='<div class="cg"><div class="cav cav-ai">🧠</div><div class="cbub cbub-ai">Chat cleared. How can I protect you today?</div></div>'}
+
+function sendChat(){
+  const inp=document.getElementById('chat-inp');const txt=inp.value.trim();if(!txt)return
+  inp.value=''
+  const area=document.getElementById('chat-area')
+  const uRow=document.createElement('div');uRow.className='cg user'
+  uRow.innerHTML=`<div class="cav cav-u">YOU</div><div class="cbub cbub-u">${txt}</div>`
+  area.appendChild(uRow)
+  const typing=document.createElement('div');typing.className='typing-wrap'
+  typing.innerHTML='<div class="cav cav-ai">🧠</div><div class="typing-dots"><div class="tdot" style="animation-delay:0s"></div><div class="tdot" style="animation-delay:.15s"></div><div class="tdot" style="animation-delay:.3s"></div></div>'
+  area.appendChild(typing);area.scrollTop=area.scrollHeight
+  setTimeout(()=>{
+    area.removeChild(typing)
+    const lower=txt.toLowerCase()
+    const rep=lower.includes('status')||lower.includes('overview')?aiR.status:lower.includes('harden')?aiR.harden:lower.includes('ransomware')?aiR.ransomware:lower.includes('trend')||lower.includes('week')?aiR.trend:lower.includes('analyze')||lower.includes('crack.exe')?aiR.analyze:aiR.default
+    const aRow=document.createElement('div');aRow.className='cg'
+    aRow.innerHTML=`<div class="cav cav-ai">🧠</div><div class="cbub cbub-ai">${rep.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')}</div>`
+    area.appendChild(aRow);area.scrollTop=area.scrollHeight
+  },900+Math.random()*500)
+}
+
+// ── Toast ──
+function toast(msg){
+  const t=document.getElementById('toast-el');t.textContent=msg;t.style.opacity='1'
+  setTimeout(()=>t.style.opacity='0',2800)
+}
+</script>
+</body>
+</html>
