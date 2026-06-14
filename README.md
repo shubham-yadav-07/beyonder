@@ -37,6 +37,30 @@ npm run dev
 
 Log in immediately with `admin@beyonder.io` / `demo1234` — the dashboard is populated from the start.
 
+
+## 📸 Screenshots
+
+> UI previews of the Beyonder system modules
+
+### Dashboard
+![Dashboard](./Output/Dashboard.png)
+
+### Threat Center
+![Threat Center](./Output/Threat Center.png)
+
+### Analytics
+![Analytics](./Output/Analytics.png)
+
+### Backup & Recovery
+![Backup & Recovery](./Output/Backup%20%26%20Recovery.png)
+
+### Blockchain Logs
+![Blockchain Logs](./Output/Blockchain%20Logs.png)
+
+### Mother AI
+![Mother AI](./Output/Mother%20AI.png)
+
+---
 ## Architecture
 
 ```
