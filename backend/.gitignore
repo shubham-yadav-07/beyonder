@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+.dev_secret_key
+.dev_refresh_secret_key
+.venv/
+*.egg-info/
