@@ -101,4 +101,4 @@ To create an intelligent cybersecurity ecosystem capable of detecting suspicious
 * Multi-Device Security Monitoring
 * SIEM Integration
 * Enterprise Security Operations Center (SOC) Features
->>>>>>> 5c4c1125bd4caf1b1b749e756252c3190cff4bb1
+
