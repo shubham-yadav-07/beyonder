@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 🛡️ Beyonder — AI-Powered Cybersecurity Platform
 
 Overview
