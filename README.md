@@ -46,7 +46,7 @@ Log in immediately with `admin@beyonder.io` / `demo1234` — the dashboard is po
 ![Dashboard](./Output/Dashboard.png)
 
 ### Threat Center
-![Threat Center](./Output/Threat.png)
+![Threat Center](./Output/Threatcentre.png)
 
 ### Analytics
 ![Analytics](./Output/Analytics.png)
