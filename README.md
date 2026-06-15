@@ -86,7 +86,7 @@ src/
 - Toggle via `ThemeToggle` component (topbar + Settings page)
 - Persisted via Zustand `persist` to `localStorage` — applied **before** React renders (no flash)
 
-## Key Features (v1.2)
+## Key Features 
 | Feature | Implementation |
 |---------|---------------|
 | Real folder monitoring | `watchdog` Observer per folder — create/modify/delete/rename → live feed |
